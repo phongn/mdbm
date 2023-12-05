@@ -161,7 +161,7 @@ GCC_VER_INT=$(shell printf "%d%04d%04d" $(GCC_VER_SPC))
 # compare to minimum version 4.8.0
 GCC_GTE_48=$(shell expr $(GCC_VER_INT) \>= 400080000)
 
-PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings
+PEDANTIC = -Wall -pedantic  -Wno-variadic-macros -Wno-long-long -Wno-overlength-strings -Wno-error=deprecated-declarations -Wno-error=stringop-truncation -Wno-error=format-truncation -Wno-error=stringop-overflow
 
 # For clang, we need to ignore c99 extensions warnings it seems ...
 ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)

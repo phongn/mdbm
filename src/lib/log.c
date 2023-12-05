@@ -105,20 +105,20 @@ size_t mdbm_strlcpy (char* dst, const char* src, size_t dstlen) {
 
 int mdbm_log_at (const char* file, int line, int level, const char* format, ...) {
     int ret;
-    va_list args;
-    va_start(args,format);
-    ret = mdbm_log_vlog_at(file, line, level, format, args);
-    va_end(args);
+    va_list_t args;
+    va_start(args.ap,format);
+    ret = mdbm_log_vlog_at(file, line, level, format, &args);
+    va_end(args.ap);
     return ret;
 }
 
 #define MESSAGE_MAX 4096
 
-int mdbm_log_vlogerror_at (const char* file, int line, int level, int error, const char* format, va_list args) {
+int mdbm_log_vlogerror_at (const char* file, int line, int level, int error, const char* format, va_list_t* args) {
     char buf[MESSAGE_MAX];
     int len;
 
-    len = vsnprintf(buf,sizeof(buf)-2,format,args);
+    len = vsnprintf(buf,sizeof(buf)-2,format,args->ap);
     strcpy(buf+len,": ");
     len += 2;
     if (!error) {
@@ -133,14 +133,14 @@ int mdbm_log_vlogerror_at (const char* file, int line, int level, int error, con
 
 int mdbm_logerror_at (const char* file, int line, int level, int error, const char* format, ...) {
     int ret;
-    va_list args;
-    va_start(args,format);
-    ret = mdbm_log_vlogerror_at(file, line, level,error,format,args);
-    va_end(args);
+    va_list_t args;
+    va_start(args.ap,format);
+    ret = mdbm_log_vlogerror_at(file, line, level,error,format,&args);
+    va_end(args.ap);
     return ret;
 }
 
-int mdbm_log_vlog_at (const char* file, int line, int level, const char* format, va_list args) {
+int mdbm_log_vlog_at (const char* file, int line, int level, const char* format, va_list_t* args) {
     int pid;
     struct timeval tv;
     char buf[MESSAGE_MAX];
@@ -171,7 +171,7 @@ int mdbm_log_vlog_at (const char* file, int line, int level, const char* format,
     }
 
     if (args) {
-        vsnprintf(buf+offset,sizeof(buf)-offset-2,format,args);
+        vsnprintf(buf+offset,sizeof(buf)-offset-2,format,args->ap);
     } else {
         mdbm_strlcpy(buf+offset,format,sizeof(buf)-offset-2);
     }

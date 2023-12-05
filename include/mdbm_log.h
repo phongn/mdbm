@@ -14,6 +14,10 @@
 extern "C" {
 #endif
 
+typedef struct va_list_s {
+    va_list ap;
+} va_list_t;
+
 
 /*============================================================*/
 /* Core logging functions.                                    */
@@ -23,14 +27,14 @@ extern "C" {
 int mdbm_log_at (const char* file, int line, int level, const char* format, ...)
         __attribute__ ((format (printf,4,5)))
         __attribute__ ((visibility ("default")));
-int mdbm_log_vlog_at (const char* file, int line, int level, const char* format, va_list args)
+int mdbm_log_vlog_at (const char* file, int line, int level, const char* format, va_list_t* args)
         __attribute__ ((format (printf,4,0)))
         __attribute__ ((visibility ("default")));
 
 int mdbm_logerror_at (const char* file, int line, int level, int error, const char* format, ...)
         __attribute__ ((format (printf,5,6)))
         __attribute__ ((visibility ("default")));
-int mdbm_log_vlogerror_at (const char* file, int line, int level, int error, const char* format, va_list args)
+int mdbm_log_vlogerror_at (const char* file, int line, int level, int error, const char* format, va_list_t* args)
         __attribute__ ((format (printf,5,0)))
         __attribute__ ((visibility ("default")));
 

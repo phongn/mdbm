@@ -78,16 +78,23 @@ static inline void atomic_barrier() {
 static inline void atomic_read_barrier() {
 #ifdef __x86_64__
     __asm__ __volatile__ ("lfence" : : : "memory");
+#elif defined(__aarch64__)
+    __asm__ volatile ("dmb ishld" : : : "memory");
 #else
     __asm__ __volatile__ ("lock addl $0,0(%%esp)" : : : "memory");
 #endif
 }
 
 static inline void atomic_pause() {
-  __asm__ __volatile__ ("pause");
+#ifdef __x86_64__
+    __asm__ __volatile__ ("pause");
+#elif defined(__aarch64__)
+    __asm__ __volatile__ ("isb");
+#endif
 }
 
 
+#ifndef SYS_gettid
 /* returns (linux-specific) thread-id (for single-thread processes it's just PID) */
 static inline uint32_t gettid() {
   /* AUTO_TSC("gettid()"); */
@@ -107,6 +114,7 @@ static inline uint32_t gettid() {
   return tid;
 #endif
 }
+#endif
 
 #ifdef __cplusplus
 }

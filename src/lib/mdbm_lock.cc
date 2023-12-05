@@ -198,12 +198,12 @@ lock_error(MDBM* db, const char* what, ...)
     const char* fname = db ? db->db_filename : NULL;
     int flen = fname ? strlen(fname) : 0;
     int len = strlen(what) + flen + 4;
-    va_list args;
+    va_list_t args;
     char *fmtbuf = (char*)malloc(len);
     snprintf(fmtbuf,len,"%s: %s",fname,what);
-    va_start(args,what);
-    mdbm_log_vlogerror(LOG_ERR,0,fmtbuf,args);
-    va_end(args);
+    va_start(args.ap,what);
+    mdbm_log_vlogerror(LOG_ERR,0,fmtbuf,&args);
+    va_end(args.ap);
     if (locks) {
       locks->printState();
     }

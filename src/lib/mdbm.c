@@ -143,6 +143,7 @@ volatile static uint64_t hi_tsc;     /* Keeps track of high water mark TSC value
 volatile static uint64_t next_gtod_tsc;   /* timestamp, in units of TSC, when to re-read gtod */
 volatile static uint64_t tsc_per_usec;    /* TSC clock cycles per microsecond */
 
+#ifdef __x86_64__
 /* Intel (and later model AMD) Fetch Time-StampCounter
  * WANRING:  This value may be affected by speedstep and may vary randomly across cores. */
 static inline uint64_t rdtsc(void)
@@ -153,6 +154,15 @@ static inline uint64_t rdtsc(void)
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return (((uint64_t)hi) << 32) | lo;
 }
+#elif defined(__aarch64__)
+/* ARM64 */
+__inline__ uint64_t rdtsc(void)
+{
+       uint64_t val;
+       __asm__ __volatile__ ("mrs %0, cntvct_el0" : "=r" (val));
+       return val;
+}
+#endif
 
 uint64_t
 tsc_get_usec(void)
