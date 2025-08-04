@@ -26,6 +26,8 @@ extern "C" {
   // Intel (and later model AMD) Fetch Time-StampCounter
   // WARNING:  This value may be affected by speedstep and may vary randomly across cores.
   __inline__ uint64_t rdtsc(void) {
+#ifdef __x86_64__
+
     uint32_t lo, hi;
     __asm__ __volatile__ (      // serialize
     "xorl %%eax,%%eax \n        cpuid"
@@ -33,6 +35,11 @@ extern "C" {
     /* We cannot use "=A", since this would use %rax on x86_64 and return only the lower 32bits of the TSC */
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return (uint64_t)hi << 32 | lo;
+#elif defined(__aarch64__)
+    uint64_t val;
+    __asm __volatile ("mrs %0, cntvct_el0" : "=r" (val));
+    return val;
+#endif
   }
 }
 
@@ -91,7 +98,7 @@ class AutoTSC {
 public:
   uint64_t        start;
   const char     *label;
-  AccumTSCRecord *rec; 
+  AccumTSCRecord *rec;
   AutoTSC(const char* lbl, AccumTSCRecord* rec) : rec(rec) {
     label = lbl;
     start = rdtsc();
@@ -121,8 +128,8 @@ public:
 #define prefetch(x) __builtin_prefetch(x)
 
 
-//#define CHECKPOINTV(msg, ...) fprintf(stderr, "%d %s:%d::%s() "msg"\n", getpid(), __FILE__, __LINE__, __PRETTY_FUNCTION__,__VA_ARGS__); 
-#define CHECKPOINTV(msg, ...) 
+//#define CHECKPOINTV(msg, ...) fprintf(stderr, "%d %s:%d::%s() "msg"\n", getpid(), __FILE__, __LINE__, __PRETTY_FUNCTION__,__VA_ARGS__);
+#define CHECKPOINTV(msg, ...)
 
 //#define TRACE_LOCKS
 #define PRINT_LOCK_TRACE(msg) {                                                      \
